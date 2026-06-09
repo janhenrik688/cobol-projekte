@@ -52,27 +52,36 @@ all: $(PROGRAMS)
 	@echo [OK] Alle Programme kompiliert
 
 # ============================================================================
-# Compile Rules
+# Compile Rules (Jetzt heißen die Regeln wie die Ausgabedateien!)
 # ============================================================================
-1: 1_STRING_REVERSE.cbl
-	@echo [Kompiliere] 1_STRING_REVERSE.cbl
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) 1_STRING_REVERSE.cbl -o 1_STRING_REVERSE.exe
 
-2: 2_CALCULATOR.cbl
-	@echo [Kompiliere] 2_CALCULATOR.cbl
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) 2_CALCULATOR.cbl -o 2_CALCULATOR.exe
+# Komfort-Kurzbefehle (Zahlen), die auf die echten Dateien verweisen
+1: 1_STRING_REVERSE.exe
+2: 2_CALCULATOR.exe
+3: 3_CALCULATOR_EXTENDED.exe
+4: 4_BUNDESLIGA_FILEPROCESSING.exe
+5: 5_TEST.exe
 
-3: 3_CALCULATOR_EXTENDED.cbl
-	@echo [Kompiliere] 3_CALCULATOR_EXTENDED.cbl
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) 3_CALCULATOR_EXTENDED.cbl -o 3_CALCULATOR_EXTENDED.exe
+# Die eigentlichen Build-Regeln: Ziel (EXE) hängt von Quelle (CBL) ab
+1_STRING_REVERSE.exe: 1_STRING_REVERSE.cbl
+	@echo [Kompiliere] $<
+	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
 
-4: 4_BUNDESLIGA_FILEPROCESSING.cbl
-	@echo [Kompiliere] 4_BUNDESLIGA_FILEPROCESSING.cbl
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) 4_BUNDESLIGA_FILEPROCESSING.cbl -o 4_BUNDESLIGA_FILEPROCESSING.exe
+2_CALCULATOR.exe: 2_CALCULATOR.cbl
+	@echo [Kompiliere] $<
+	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
 
-5: 5_TEST.cbl
-	@echo [Kompiliere] 5_TEST.cbl
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) 5_TEST.cbl -o 5_TEST.exe
+3_CALCULATOR_EXTENDED.exe: 3_CALCULATOR_EXTENDED.cbl
+	@echo [Kompiliere] $<
+	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
+
+4_BUNDESLIGA_FILEPROCESSING.exe: 4_BUNDESLIGA_FILEPROCESSING.cbl
+	@echo [Kompiliere] $<
+	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
+
+5_TEST.exe: 5_TEST.cbl
+	@echo [Kompiliere] $<
+	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
 
 # ============================================================================
 # Clean Target
