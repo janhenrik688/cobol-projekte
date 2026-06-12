@@ -15,21 +15,20 @@
        DATA DIVISION.
        FILE SECTION.
        WORKING-STORAGE SECTION.
-       01 USER-TEXT        PIC X(30) VALUE SPACES.
-       01 REVERSED-TEXT    PIC X(30) VALUE SPACES.
+       01 USER-TEXT        PIC X(10) VALUE SPACES.
+       01 REVERSED-TEXT    PIC X(10) VALUE SPACES.
        01 I                PIC 99.
        01 LEN              PIC 99.
-
-       01 OUTPUT-LINE       PIC X(60) VALUE SPACES.
+       01 OUTPUT-LINE      PIC X(40) VALUE SPACES.
 
        PROCEDURE DIVISION.
 
        MAIN-PROCEDURE.
 
-           DISPLAY "Bitte geben Sie einen Text ein: "
+           DISPLAY "Bitte Text eingeben: "
            ACCEPT USER-TEXT
 
-           *> L�nge des Textes bestimmen (ohne Leerzeichen am Ende)
+           *> Laenge des Textes bestimmen (ohne Leerzeichen am Ende)
            MOVE FUNCTION LENGTH(FUNCTION TRIM(USER-TEXT)) TO LEN
 
            *> String umkehren
@@ -39,19 +38,21 @@
            END-PERFORM
 
            *> Ausgabe
+           MOVE 1 TO PTR
            MOVE SPACES TO OUTPUT-LINE
+
            STRING
-               "Umgekehrter Text: " 
-               FUNCTION TRIM(REVERSED-TEXT(1:LEN))
-               DELIMITED BY SIZE
+               "Umgekehrte Eingabe:" DELIMITED BY SIZE
+               REVERSED-TEXT(1:LEN) DELIMITED BY SIZE
            INTO OUTPUT-LINE
+           WITH POINTER PTR
            END-STRING
 
-           DISPLAY "Sie haben eingegeben: " FUNCTION TRIM(USER-TEXT)
-           DISPLAY "---------------------------------------------------"
-           DISPLAY "Der umgekehrte Text lautet: " 
-           FUNCTION TRIM(REVERSED-TEXT)
-           DISPLAY OUTPUT-LINE
+           DISPLAY "Sie haben eingegeben: " 
+           DISPLAY FUNCTION TRIM(USER-TEXT)
+           DISPLAY "----------------------------------------------"
+           DISPLAY "Umgekehrte Eingabe: "
+           DISPLAY REVERSED-TEXT(1:LEN)
 
            STOP RUN.
 
