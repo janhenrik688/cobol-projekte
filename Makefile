@@ -66,7 +66,7 @@ $(OUT_DIR):
 # Generische Compile-Regel: .cbl zu .exe
 $(BIN_DIR)/%.exe: %.cbl | $(BIN_DIR)
 	@echo [Kompiliere] $<
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
+	@"$(COBOL_BIN)" $(COBOL_FLAGS) -o $@ $<
 
 # Kurzwahl für jedes Programm
 1: $(BIN_DIR)/1_STRING_REVERSE.exe
@@ -95,6 +95,7 @@ clean:
 	@echo [Clean] Loesche bin und out Verzeichnisse
 	@if exist $(BIN_DIR) rmdir /s /q $(BIN_DIR)
 	@if exist $(OUT_DIR) rmdir /s /q $(OUT_DIR)
+	@if exist *.exe del /q *.exe
 	@echo [OK] Aufgeraeumt
 
 # ============================================================================
@@ -116,8 +117,11 @@ status:
 	@dir /b *.cbl 2>nul || echo Keine COBOL-Dateien gefunden
 	@echo ""
 	@echo Kompilierte Programme:
-	@dir /b *.exe 2>nul || echo Keine Programme kompiliert
+	@if exist $(BIN_DIR) dir /b $(BIN_DIR)\*.exe 2>nul || echo Keine Programme kompiliert
 	@echo ""
+	@echo Output-Dateien:
+	@if exist $(OUT_DIR) dir /b $(OUT_DIR)\* 2>nul || echo Keine Output-Dateien gefunden
+
 
 # ============================================================================
 # Info Target

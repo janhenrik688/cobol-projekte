@@ -20,6 +20,7 @@
        01 I                PIC 99.
        01 LEN              PIC 99.
        01 OUTPUT-LINE      PIC X(40) VALUE SPACES.
+       01 PTR              PIC 99 VALUE 1.
 
        PROCEDURE DIVISION.
 

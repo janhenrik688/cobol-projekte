@@ -125,5 +125,5 @@
            DISPLAY "Ergebnis: " ERGEBNIS-ANZEIGE
 
            STOP RUN.
-      ** add other procedures here
+      
        END PROGRAM CALCULATOR.

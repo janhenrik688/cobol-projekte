@@ -2,7 +2,7 @@
       * Author:    Jan-Henrik Horwege
       * Date:      2026-06-05
       * Purpose:   Einfacher Taschenrechner mit + - * /
-      *            Unterstützt Dezimalzahlen und negative Werte
+      *            Unterstï¿½tzt Dezimalzahlen und negative Werte
       * Tectonics: cobc
       ******************************************************************
 
@@ -22,7 +22,7 @@
       *-----------------------
 
        WORKING-STORAGE SECTION.
-      * Eingabestring (wird als Text gelesen und später umgewandelt)
+      * Eingabestring (wird als Text gelesen und spaeter umgewandelt)
        01 INPUT-STR        PIC X(10).
       * Rechenvariablen
       * S = signed (erlaubt negative Zahlen)
@@ -34,24 +34,23 @@
        01 ERGEBNIS         PIC S9(5)V99 VALUE 0.
 
       * Anzeigeformat:
-      * -Z = führende Leerzeichen statt Nullen, mit Vorzeichen
+      * -Z = fuehrende Leerzeichen statt Nullen, mit Vorzeichen
       * .99 = sichtbare Nachkommastellen
        01 ERGEBNIS-ANZEIGE PIC -Z(5).99.
 
-      * Speichert die gewählte Rechenoperation (+ - * /)
+      * Speichert die gewaehlte Rechenoperation (+ - * /)
        01 OPERATOR         PIC X.
 
       *---------------------------------------------------------------*
        PROCEDURE DIVISION.
       *---------------------------------------------------------------*
 
-       MAIN-PROCEDURE.
       **
       * Hauptprogramm:
       * 1. Zahlen einlesen
       * 2. Eingabe bereinigen (Komma zu Punkt)
       * 3. Umwandlung in numerische Werte
-      * 4. Operation ausführen
+      * 4. Operation ausfuehren
       * 5. Ergebnis anzeigen
       **
 
@@ -91,5 +90,5 @@
            DISPLAY "Ergebnis: " ERGEBNIS-ANZEIGE
 
            STOP RUN.
-      ** add other procedures here
+      
        END PROGRAM CALCULATOR.
