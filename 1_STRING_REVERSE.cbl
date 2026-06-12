@@ -20,6 +20,8 @@
        01 I                PIC 99.
        01 LEN              PIC 99.
 
+       01 OUTPUT-LINE       PIC X(60) VALUE SPACES.
+
        PROCEDURE DIVISION.
 
        MAIN-PROCEDURE.
@@ -27,7 +29,7 @@
            DISPLAY "Bitte geben Sie einen Text ein: "
            ACCEPT USER-TEXT
 
-           *> Länge des Textes bestimmen (ohne Leerzeichen am Ende)
+           *> Lï¿½nge des Textes bestimmen (ohne Leerzeichen am Ende)
            MOVE FUNCTION LENGTH(FUNCTION TRIM(USER-TEXT)) TO LEN
 
            *> String umkehren
@@ -37,9 +39,19 @@
            END-PERFORM
 
            *> Ausgabe
+           MOVE SPACES TO OUTPUT-LINE
+           STRING
+               "Umgekehrter Text: " 
+               FUNCTION TRIM(REVERSED-TEXT(1:LEN))
+               DELIMITED BY SIZE
+           INTO OUTPUT-LINE
+           END-STRING
+
            DISPLAY "Sie haben eingegeben: " FUNCTION TRIM(USER-TEXT)
            DISPLAY "---------------------------------------------------"
-           DISPLAY "Umgekehrt: " FUNCTION TRIM(REVERSED-TEXT)
+           DISPLAY "Der umgekehrte Text lautet: " 
+           FUNCTION TRIM(REVERSED-TEXT)
+           DISPLAY OUTPUT-LINE
 
            STOP RUN.
 

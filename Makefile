@@ -3,6 +3,9 @@
 # ============================================================================
 COBOL_BIN = C:\Program Files (x86)\OpenCobolIDE\GnuCOBOL\bin\cobc.exe
 COBOL_CONFIG = C:\Program Files (x86)\OpenCobolIDE\GnuCOBOL\config
+BIN_DIR = bin
+OUT_DIR = out
+
 
 # Compiler-Flags
 COBOL_FLAGS = -x
@@ -14,11 +17,11 @@ export COB_CONFIG_DIR := $(COBOL_CONFIG)
 # Ziele (Programme .cbl Dateien
 # ============================================================================
 PROGRAMS = \
-    1_STRING_REVERSE.exe \
-    2_CALCULATOR.exe \
-    3_CALCULATOR_EXTENDED.exe \
-    4_BUNDESLIGA_FILEPROCESSING.exe \
-	5_TEST.exe
+    $(BIN_DIR)/1_STRING_REVERSE.exe \
+    $(BIN_DIR)/2_CALCULATOR.exe \
+    $(BIN_DIR)/3_CALCULATOR_EXTENDED.exe \
+    $(BIN_DIR)/4_BUNDESLIGA_FILEPROCESSING.exe
+
 
 # ============================================================================
 # Default Target
@@ -40,7 +43,6 @@ help:
 	@echo   make 2 = 2_CALCULATOR
 	@echo   make 3 = 3_CALCULATOR_EXTENDED
 	@echo   make 4 = 4_BUNDESLIGA_FILEPROCESSING
-	@echo   make 5 = 5_TEST
 	@echo ""
 
 # ============================================================================
@@ -55,41 +57,44 @@ all: $(PROGRAMS)
 # Compile Rules (Jetzt heißen die Regeln wie die Ausgabedateien!)
 # ============================================================================
 
-# Komfort-Kurzbefehle (Zahlen), die auf die echten Dateien verweisen
-1: 1_STRING_REVERSE.exe
-2: 2_CALCULATOR.exe
-3: 3_CALCULATOR_EXTENDED.exe
-4: 4_BUNDESLIGA_FILEPROCESSING.exe
-5: 5_TEST.exe
+# Ordner erstellen
+$(BIN_DIR):
+	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+$(OUT_DIR):
+	@if not exist $(OUT_DIR) mkdir $(OUT_DIR)
 
-# Die eigentlichen Build-Regeln: Ziel (EXE) hängt von Quelle (CBL) ab
-1_STRING_REVERSE.exe: 1_STRING_REVERSE.cbl
+# Generische Compile-Regel: .cbl zu .exe
+$(BIN_DIR)/%.exe: %.cbl | $(BIN_DIR)
 	@echo [Kompiliere] $<
 	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
 
-2_CALCULATOR.exe: 2_CALCULATOR.cbl
-	@echo [Kompiliere] $<
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
+# Kurzwahl für jedes Programm
+1: $(BIN_DIR)/1_STRING_REVERSE.exe
+2: $(BIN_DIR)/2_CALCULATOR.exe
+3: $(BIN_DIR)/3_CALCULATOR_EXTENDED.exe
+4: $(BIN_DIR)/4_BUNDESLIGA_FILEPROCESSING.exe
 
-3_CALCULATOR_EXTENDED.exe: 3_CALCULATOR_EXTENDED.cbl
-	@echo [Kompiliere] $<
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
+# Run Targets
+run1: $(BIN_DIR)/1_STRING_REVERSE.exe
+	@.\$(BIN_DIR)\1_STRING_REVERSE.exe
 
-4_BUNDESLIGA_FILEPROCESSING.exe: 4_BUNDESLIGA_FILEPROCESSING.cbl
-	@echo [Kompiliere] $<
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
+run2: $(BIN_DIR)/2_CALCULATOR.exe
+	@.\$(BIN_DIR)\2_CALCULATOR.exe
 
-5_TEST.exe: 5_TEST.cbl
-	@echo [Kompiliere] $<
-	@"$(COBOL_BIN)" $(COBOL_FLAGS) $< -o $@
+run3: $(BIN_DIR)/3_CALCULATOR_EXTENDED.exe
+	@.\$(BIN_DIR)\3_CALCULATOR_EXTENDED.exe
+
+run4: $(BIN_DIR)/4_BUNDESLIGA_FILEPROCESSING.exe | $(OUT_DIR)
+	@.\$(BIN_DIR)\4_BUNDESLIGA_FILEPROCESSING.exe
 
 # ============================================================================
 # Clean Target
 # ============================================================================
 .PHONY: clean
 clean:
-	@echo [Clean] Loeschen von kompilierten Dateien
-	@if exist *.exe del /q *.exe
+	@echo [Clean] Loesche bin und out Verzeichnisse
+	@if exist $(BIN_DIR) rmdir /s /q $(BIN_DIR)
+	@if exist $(OUT_DIR) rmdir /s /q $(OUT_DIR)
 	@echo [OK] Aufgeraeumt
 
 # ============================================================================

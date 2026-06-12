@@ -6,7 +6,7 @@
        FILE-CONTROL.
            SELECT INPUT-FILE ASSIGN TO "bundesliga_resultate.csv"
                ORGANIZATION IS LINE SEQUENTIAL.
-           SELECT OUTPUT-FILE ASSIGN TO "bundesliga_tabelle.csv"
+           SELECT OUTPUT-FILE ASSIGN TO "out/bundesliga_tabelle.csv"
                ORGANIZATION IS LINE SEQUENTIAL.
        
        DATA DIVISION.
@@ -23,28 +23,30 @@
            05  WS-TEAM OCCURS 30 TIMES.
                10  WS-NAME        PIC X(30).
                10  WS-SPIELE      PIC 99 VALUE 0.
-               10  WS-TORE        PIC 99 VALUE 0.
-               10  WS-GEGENTORE   PIC 99 VALUE 0.
-               10  WS-PUNKTE      PIC 99 VALUE 0.
-       
+               10  WS-TORE        PIC 9(4) VALUE 0.
+               10  WS-GEGENTORE   PIC 9(4) VALUE 0.
+               10  WS-PUNKTE      PIC 9(4) VALUE 0.
+      
        01  WS-TEAM-COUNT          PIC 99 VALUE 0.
        01  WS-I                   PIC 99.
        01  WS-J                   PIC 99.
-       01  WS-FOUND               PIC 9 VALUE 0.
+       01  WS-FOUND               PIC 9.
+           88  WS-TEAM-FOUND        value 1.      
+           88  WS-TEAM-NOT-FOUND    value 0.
+                 
        01  WS-HOME                PIC X(30).
        01  WS-AWAY                PIC X(30).
-       01  WS-HOME-G              PIC 99.
-       01  WS-AWAY-G              PIC 99.
-       01  WS-DIFF                PIC S99.
+       01  WS-HOME-G              PIC 9(4).
+       01  WS-AWAY-G              PIC 9(4).
+       01  WS-DIFF                PIC S9(4).
+       01  WS-J-START             PIC 99.
        
-       01  WS-TEMP-NAME           PIC X(30).
-       01  WS-TEMP-SPIELE         PIC 99.
-       01  WS-TEMP-TORE           PIC 99.
-       01  WS-TEMP-GEGENTORE      PIC 99.
-       01  WS-TEMP-PUNKTE         PIC 99.
-       
-       01  WS-OUT-DIFF-STR        PIC X(3).
-       01  WS-DIFF-ABS            PIC 99.
+       01  WS-TEMP-TEAM.
+           05  WS-TEMP-NAME       PIC X(30).
+           05  WS-TEMP-SPIELE     PIC 99.
+           05  WS-TEMP-TORE       PIC 9(4).
+           05  WS-TEMP-GEGENTORE  PIC 9(4).
+           05  WS-TEMP-PUNKTE     PIC 9(4).
        
        01  WS-OUT-LINE.
            05  WS-OUT-PLATZ       PIC 99.
@@ -53,11 +55,11 @@
            05  FILLER             PIC X VALUE ';'.
            05  WS-OUT-SPIELE      PIC 99.
            05  FILLER             PIC X VALUE ';'.
-           05  WS-OUT-TORE        PIC 99.
+           05  WS-OUT-TORE        PIC 9(4).
            05  FILLER             PIC X VALUE ';'.
-           05  WS-OUT-GEGENTORE   PIC 99.
+           05  WS-OUT-GEGENTORE   PIC 9(4).
            05  FILLER             PIC X VALUE ';'.
-           05  WS-OUT-DIFF-NUM    PIC X(3).
+           05  WS-OUT-DIFF-NUM    PIC -ZZ9.
            05  FILLER             PIC X VALUE ';'.
            05  WS-OUT-PUNKTE      PIC 99.
        
@@ -95,11 +97,11 @@
            PERFORM ADD-TO-AWAY-TEAM.
        
        ADD-TO-HOME-TEAM.
-           MOVE 0 TO WS-FOUND.
+           SET WS-TEAM-NOT-FOUND TO TRUE.
            PERFORM VARYING WS-I FROM 1 BY 1
                UNTIL WS-I > WS-TEAM-COUNT
                IF WS-NAME(WS-I) = WS-HOME
-                   MOVE 1 TO WS-FOUND
+                   SET WS-TEAM-FOUND TO TRUE
                    ADD 1 TO WS-SPIELE(WS-I)
                    ADD WS-HOME-G TO WS-TORE(WS-I)
                    ADD WS-AWAY-G TO WS-GEGENTORE(WS-I)
@@ -113,7 +115,7 @@
                END-IF
            END-PERFORM.
            
-           IF WS-FOUND = 0
+           IF WS-TEAM-NOT-FOUND 
                ADD 1 TO WS-TEAM-COUNT
                MOVE WS-HOME TO WS-NAME(WS-TEAM-COUNT)
                MOVE 1 TO WS-SPIELE(WS-TEAM-COUNT)
@@ -131,11 +133,11 @@
            END-IF.
        
        ADD-TO-AWAY-TEAM.
-           MOVE 0 TO WS-FOUND.
+           SET WS-TEAM-NOT-FOUND TO TRUE.
            PERFORM VARYING WS-I FROM 1 BY 1
                UNTIL WS-I > WS-TEAM-COUNT
                IF WS-NAME(WS-I) = WS-AWAY
-                   MOVE 1 TO WS-FOUND
+                   SET WS-TEAM-FOUND TO TRUE
                    ADD 1 TO WS-SPIELE(WS-I)
                    ADD WS-AWAY-G TO WS-TORE(WS-I)
                    ADD WS-HOME-G TO WS-GEGENTORE(WS-I)
@@ -149,7 +151,7 @@
                END-IF
            END-PERFORM.
            
-           IF WS-FOUND = 0
+           IF WS-TEAM-NOT-FOUND
                ADD 1 TO WS-TEAM-COUNT
                MOVE WS-AWAY TO WS-NAME(WS-TEAM-COUNT)
                MOVE 1 TO WS-SPIELE(WS-TEAM-COUNT)
@@ -169,17 +171,17 @@
        SORT-TEAMS.
            PERFORM VARYING WS-I FROM 1 BY 1
                UNTIL WS-I >= WS-TEAM-COUNT
-               PERFORM VARYING WS-J FROM WS-I BY 1
-                   UNTIL WS-J >= WS-TEAM-COUNT
+               COMPUTE WS-J-START = WS-I + 1
+               PERFORM VARYING WS-J FROM WS-J-START BY 1
+                   UNTIL WS-J > WS-TEAM-COUNT
+                   
                    IF WS-PUNKTE(WS-I) < WS-PUNKTE(WS-J)
                        PERFORM SWAP-TEAM
                    ELSE
                        IF WS-PUNKTE(WS-I) = WS-PUNKTE(WS-J)
                            COMPUTE WS-DIFF = 
-                               (WS-TORE(WS-I) - 
-                                WS-GEGENTORE(WS-I)) -
-                               (WS-TORE(WS-J) - 
-                                WS-GEGENTORE(WS-J))
+                               (WS-TORE(WS-I) - WS-GEGENTORE(WS-I)) -
+                               (WS-TORE(WS-J) - WS-GEGENTORE(WS-J))
                            IF WS-DIFF < 0
                                PERFORM SWAP-TEAM
                            END-IF
@@ -189,55 +191,36 @@
            END-PERFORM.
        
        SWAP-TEAM.
-           MOVE WS-NAME(WS-I) TO WS-TEMP-NAME.
-           MOVE WS-SPIELE(WS-I) TO WS-TEMP-SPIELE.
-           MOVE WS-TORE(WS-I) TO WS-TEMP-TORE.
-           MOVE WS-GEGENTORE(WS-I) TO WS-TEMP-GEGENTORE.
-           MOVE WS-PUNKTE(WS-I) TO WS-TEMP-PUNKTE.
-           
-           MOVE WS-NAME(WS-J) TO WS-NAME(WS-I).
-           MOVE WS-SPIELE(WS-J) TO WS-SPIELE(WS-I).
-           MOVE WS-TORE(WS-J) TO WS-TORE(WS-I).
-           MOVE WS-GEGENTORE(WS-J) TO WS-GEGENTORE(WS-I).
-           MOVE WS-PUNKTE(WS-J) TO WS-PUNKTE(WS-I).
-           
-           MOVE WS-TEMP-NAME TO WS-NAME(WS-J).
-           MOVE WS-TEMP-SPIELE TO WS-SPIELE(WS-J).
-           MOVE WS-TEMP-TORE TO WS-TORE(WS-J).
-           MOVE WS-TEMP-GEGENTORE TO WS-GEGENTORE(WS-J).
-           MOVE WS-TEMP-PUNKTE TO WS-PUNKTE(WS-J).
+           MOVE WS-TEAM(WS-I) TO WS-TEMP-TEAM.
+           MOVE WS-TEAM(WS-J) TO WS-TEAM(WS-I).
+           MOVE WS-TEMP-TEAM  TO WS-TEAM(WS-J).
        
        OUTPUT-RESULTS.
            OPEN OUTPUT OUTPUT-FILE.
            
-           MOVE 
-               "Platz;Team;Spiele;Tore;Gegentore;Tordiff;Punkte"
+           MOVE "Platz;Team;Spiele;Tore;Gegentore;Tordiff;Punkte"
                TO OUTPUT-RECORD.
            WRITE OUTPUT-RECORD.
            
            PERFORM VARYING WS-I FROM 1 BY 1
                UNTIL WS-I > WS-TEAM-COUNT
-               COMPUTE WS-DIFF = WS-TORE(WS-I) - 
-                   WS-GEGENTORE(WS-I)
+               COMPUTE WS-DIFF = WS-TORE(WS-I) - WS-GEGENTORE(WS-I)
+               
                MOVE WS-I TO WS-OUT-PLATZ
-               MOVE FUNCTION TRIM(WS-NAME(WS-I)) 
-                   TO WS-OUT-NAME
+               MOVE FUNCTION TRIM(WS-NAME(WS-I)) TO WS-OUT-NAME
                MOVE WS-SPIELE(WS-I) TO WS-OUT-SPIELE
                MOVE WS-TORE(WS-I) TO WS-OUT-TORE
                MOVE WS-GEGENTORE(WS-I) TO WS-OUT-GEGENTORE
-               IF WS-DIFF < 0
-                   COMPUTE WS-DIFF-ABS = WS-DIFF * -1
-                   MOVE FUNCTION CONCATENATE("-"
-                       FUNCTION TRIM(WS-DIFF-ABS))
-                       TO WS-OUT-DIFF-NUM
-               ELSE
-                   MOVE WS-DIFF TO WS-OUT-DIFF-NUM
-               END-IF
+               
+               MOVE WS-DIFF TO WS-OUT-DIFF-NUM
+               
                MOVE WS-PUNKTE(WS-I) TO WS-OUT-PUNKTE
                MOVE WS-OUT-LINE TO OUTPUT-RECORD
                WRITE OUTPUT-RECORD
            END-PERFORM.
            
            CLOSE OUTPUT-FILE.
-           DISPLAY "Bundesliga-Tabelle erfolgreich erstellt!"
+           DISPLAY "Bundesliga-Tabelle erfolgreich erstellt!".
            DISPLAY "Datei: bundesliga_tabelle.csv".
+           
+       
